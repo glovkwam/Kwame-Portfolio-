@@ -1,73 +1,120 @@
-class Box {
-    constructor(x,z,w) {
-        this.x = x * w
-        this.z = z * w
-        this.offset = sqrt(sq(x)+sq(z)) / 2
-        this.width = w
+let gridTopX;
+let gridTopY;
+const sideLength = 50;
+
+const cubes = [];
+
+function setup() {
+  createCanvas(400, 400);
+  gridTopX = width / 2;
+  gridTopY = height / 2;
+
+  strokeWeight(2);
+
+  cubes.push(new Cube(0, 0, 0));
+
+  while (cubes.length < 50) {
+    addRandomCube();
+  }
+
+  // Sort so the cubes are drawn in the right order
+  cubes.sort((a, b) => {
+    return a.getSortString().localeCompare(b.getSortString());
+  });
+}
+
+function keyPressed() {
+  if (cubes.length > 1) {
+    rCube = cubes.pop();
+  }
+}
+
+function draw() {
+  clear();
+ // background(120);
+
+  for (const cube of cubes) {
+    cube.draw();
+  }
+}
+
+function addRandomCube() {
+
+  let cubeAdded = false;
+
+  while (!cubeAdded) {
+    const randomCube = random(cubes);
+
+    let newCubeC = randomCube.c;
+    let newCubeR = randomCube.r;
+    let newCubeZ = randomCube.z;
+
+    const r = random(1);
+    if (r < .3) {
+      newCubeC++;
+    } else if (r < .6) {
+      newCubeR++;
+    } else {
+      newCubeZ++;
     }
-    height(f) {
-      return sq(sin(-f + this.offset)) * this.width
-    }
-  
-    render(f) {
-      push()
-        rotateX(spin.x)
-        rotateY(spin.y)
-        translate(this.x, this.height(f), this.z)
-        box(this.width, 5 * this.width + 10 * this.height(f), this.width)
-      pop()
+
+    const spotTaken = cubes.some((cube) => {
+      return cube.c == newCubeC &&
+        cube.r == newCubeR &&
+        cube.z == newCubeZ;
+    });
+
+    if (!spotTaken) {
+      cubes.push(new Cube(newCubeC, newCubeR, newCubeZ));
+      cubeAdded = true;
     }
   }
-  
-  const boxes = []
-  let speed
-  let pointColor
-  let ambientColor
-  let materialColor
-  let spin = {}
-  let autospin
-  
-  function setup() {
-    let cnv = createCanvas(400, 400, WEBGL)
-    ortho(-200,200,-200,200,-800,800,0,1000)
-    noStroke()
-  
-    const boxwidth = 15
-    const cubecount = 7
-    for (let z = -cubecount; z <= cubecount; z++) {
-      for (let x = -cubecount; x <= cubecount; x++) {
-        let b = new Box(x, z, boxwidth)
-        boxes.push(b)
-      }
-    }
-  
-    speed = createSlider(1.5,12,5,0.001)
-    pointColor = document.getElementById("pointColor")
-    ambientColor = document.getElementById("ambientColor")
-    materialColor = document.getElementById("materialColor")
-  
-    spin.x = -QUARTER_PI
-    spin.y = QUARTER_PI
-  
-    autospin = createCheckbox("Autospin", false)
+}
+
+class Cube {
+
+  constructor(c, r, z) {
+    this.c = c;
+    this.r = r;
+    this.z = z;
+    this.red = random(255);
+    this.green = random(255);
+    this.blue = random(255);
   }
-  
-  function draw() {
-    background(240)
-    pointLight(color(pointColor.value),800,-100,200)
-    ambientLight(color(ambientColor.value))
-    ambientMaterial(color(materialColor.value))
-    let f = frameCount/sq(speed.value())
-    for (let b of boxes) {
-      b.render(f)
+
+  draw() {
+    const x = gridTopX + (this.c - this.r) * sideLength *
+      sqrt(3) / 2;
+    const y = gridTopY + (this.c + this.r) * sideLength / 2 -
+      (sideLength * this.z);
+
+    const points = [];
+    for (let angle = PI / 6; angle < PI * 2; angle += PI / 3) {
+      points.push(
+        createVector(x + cos(angle) * sideLength,
+          y + sin(angle) * sideLength));
     }
-    if (autospin.checked()) {
-      spin.x = (spin.x + speed.value() / 200) % TAU
-      spin.y = (spin.y + speed.value() / 282) % TAU
-    }
+
+    fill(this.red * .75, this.green * .75, this.blue * .75);
+    quad(x, y,
+      points[5].x, points[5].y,
+      points[0].x, points[0].y,
+      points[1].x, points[1].y);
+
+    fill(this.red * .9, this.green * .9, this.blue * .9);
+    quad(x, y,
+      points[1].x, points[1].y,
+      points[2].x, points[2].y,
+      points[3].x, points[3].y);
+
+    fill(this.red, this.green, this.blue);
+    quad(x, y,
+      points[3].x, points[3].y,
+      points[4].x, points[4].y,
+      points[5].x, points[5].y);
   }
-  
-  function mouseDragged() {
-    spin.y = (spin.y + (TAU * (mouseX - pmouseX)/width) * (sin(spin.x) < 0 ? 1 : -1)) % TAU
-    spin.x = (spin.x - (TAU * (mouseY - pmouseY)/height)) % TAU
+
+  getSortString() {
+    return this.z + '.' + this.r + '.' + this.c;
   }
+}
