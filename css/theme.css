@@ -255,6 +255,7 @@ img,
 svg {
   vertical-align: middle; }
 
+
 table {
   caption-side: bottom;
   border-collapse: collapse; }
@@ -287,6 +288,7 @@ button {
 
 button:focus:not(:focus-visible) {
   outline: 0; }
+  
 
 input,
 button,
@@ -640,6 +642,7 @@ progress {
   width: 91.66667%; }
 
 .col-12 {
+  
   flex: 0 0 auto;
   width: 100%; }
 
@@ -8886,7 +8889,13 @@ a.hover-hide::before,
 a.hover-hide .hover-content,
 .navbar-collapse.collapse.show,
 img {
-  transition: all 0.5s ease-in-out 0s; }
+  transition: all 0.5s ease-in-out 0s;
+   }
+#gallery img {
+    width: 33%; 
+    image-resolution: 72dpi;
+    max-width: 1920px;
+  }
 
 .transform-scale:hover {
   transform: scale(1.5, 1.5); }
