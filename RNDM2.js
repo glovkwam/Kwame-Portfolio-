@@ -1,16 +1,23 @@
 function setup(){
-  createCanvas(800, 800, WEBGL);
+  createCanvas(windowWidth, windowHeight, WEBGL);
   colorMode(HSB);
   angleMode(DEGREES);
   stroke(205, 50, 100);
   strokeWeight(4);
+}
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
 }
 
 function draw(){
   //background(230, 50, 15);
   clear();
   orbitControl(4, 4);//3D mouse control
-
+  
+  let scaleFactor = min(width, height) / 1000;
+  
+  // Apply scale factor
+  scale(scaleFactor);
   rotateX(-10);
   crypto();
   kwam();
