@@ -9,7 +9,7 @@ const dots = [];
 var x = 280;
 var y = 280;
 function setup() {
-  createCanvas(500, 500);
+  createCanvas(350, 350);
   frameRate(10);
   mic = new p5.AudioIn();
   mic.start();
